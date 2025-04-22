@@ -1,0 +1,27 @@
+EPSILON=1e-8
+INFINITY=1e8
+
+ONE_OVER_NANO  = 1000000000
+ONE_OVER_MICRO = 1000000
+ONE_OVER_MILLI = 1000
+
+MILLI_OVER_NANO = 1000000
+MILLI_OVER_MICRO = 1000
+MICRO_OVER_NANO = 1000
+
+NANO_IN_ONE = 1e-9
+NANO_IN_MILLI = 1e-6
+NANO_IN_MICRO = 1e-3
+
+MICRO_IN_ONE = 1e-6
+MICRO_IN_MILLI = 1e-3
+
+MILLI_IN_ONE = 1e-3
+
+NANO_DIGIT = 9
+MICRO_DIGIT = 6
+MILLI_DIGIT = 3
+
+datetime_standard_format = '%Y-%m-%d %H:%M:%S'
+datetime_standard2_format = '%Y-%m-%d %H:%M:%S.%f'
+datetime_alternative_format = '%Y/%m/%d %H:%M:%S'
