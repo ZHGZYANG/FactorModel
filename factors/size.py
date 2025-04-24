@@ -5,7 +5,7 @@ import pandas as pd
 import datetime
 from Factor import Factor
 from config import root_fldr
-from utils import normalize, winzorize
+from util import normalize, winzorize
 
 class Size(Factor):
   def __init__(self, startdate: pd.Timestamp, enddate: pd.Timestamp):
@@ -16,15 +16,15 @@ class Size(Factor):
 
   def calc(self):
     total_descriptor = pd.DataFrame()
-    datadates = cal_util.dateSeq(startdate, enddate)
+    datadates = cal_util.dateSeq(self.startdate, self.enddate)
 
     for datadate in datadates:
       ma = datadate - pd.DateOffset(months=1)
-      univ_cur = universe.loc[(universe['datadate'] <= datadate) & (universe['datadate'] >= ma)].reset_index(
+      univ_cur = self.universe.loc[(self.universe['datadate'] <= datadate) & (self.universe['datadate'] >= ma)].reset_index(
           drop=True)
 
       ya = datadate - pd.DateOffset(years=1)
-      fdmt_cur = fdmt.loc[(fdmt['rdq'] <= datadate) & (fdmt['datadate'] >= ya)].reset_index(drop=True)
+      fdmt_cur = self.fdmt.loc[(self.fdmt['rdq'] <= datadate) & (self.fdmt['datadate'] >= ya)].reset_index(drop=True)
 
       logmktcap = univ_cur.groupby('gvkey').apply(lambda x: pd.Series(dict(
           log_mktcap_21=np.log((x['cshoc'] * x['prccd']).mean())

@@ -5,7 +5,7 @@ import pandas as pd
 import datetime
 from Factor import Factor
 from config import root_fldr
-from utils import normalize, winzorize
+from util import normalize, winzorize
 
 class Turnover(Factor):
   def __init__(self, startdate: pd.Timestamp, enddate: pd.Timestamp):
@@ -16,14 +16,14 @@ class Turnover(Factor):
 
   def calc(self):
     total_descriptor = pd.DataFrame()
-    datadates = cal_util.dateSeq(startdate, enddate)
+    datadates = cal_util.dateSeq(self.startdate, self.enddate)
     if not os.path.exists(save_fldr): os.makedirs(save_fldr)
     for datadate in datadates:
       ma3 = datadate - pd.DateOffset(months=3)
       ma6 = datadate - pd.DateOffset(months=6)
       ya = datadate - pd.DateOffset(years=1)
 
-      univ_cur = universe.loc[(universe['datadate'] <= datadate) & (universe['datadate'] >= ya)].reset_index(
+      univ_cur = self.universe.loc[(self.universe['datadate'] <= datadate) & (self.universe['datadate'] >= ya)].reset_index(
           drop=True)
 
       univ_cur['ma3_flg'] = np.where(univ_cur['datadate'] >= ma3, 1, np.nan)

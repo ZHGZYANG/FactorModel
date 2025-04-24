@@ -5,7 +5,7 @@ import pandas as pd
 import datetime
 from Factor import Factor
 from config import root_fldr
-from utils import normalize, winzorize
+from util import normalize, winzorize
 
 class Season(Factor):
   def __init__(self, startdate: pd.Timestamp, enddate: pd.Timestamp):
@@ -16,15 +16,15 @@ class Season(Factor):
 
   def calc(self):
     total_descriptor = pd.DataFrame()
-    datadates = cal_util.dateSeq(startdate, enddate)
+    datadates = cal_util.dateSeq(self.startdate, self.enddate)
 
-    universe['retflt'] = np.clip(universe['ret'], -0.99, 1)
+    self.universe['retflt'] = np.clip(self.universe['ret'], -0.99, 1)
 
     for datadate in datadates:
       season_return = pd.DataFrame()
       for year in range(1, 6):
         ya = datadate - pd.DateOffset(years=year)
-        univ_cur = universe.loc[(universe['datadate'] >= ya) & (universe['datadate'] < cal_util.dateWrap(ya, by=20))]
+        univ_cur = self.universe.loc[(self.universe['datadate'] >= ya) & (self.universe['datadate'] < cal_util.dateWrap(ya, by=20))]
         return_by_year = univ_cur.groupby('gvkey')['retflt'].apply('sum').reset_index(name='season_return')
         return_by_year['year'] = year
         season_return = pd.concat([season_return, return_by_year], ignore_index=True)

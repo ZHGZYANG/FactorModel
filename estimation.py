@@ -10,6 +10,7 @@ import scipy.optimize as optimize
 import seaborn as sns
 from sklearn.linear_model import LinearRegression
 
+from calendar_utils import Calendar_Util
 from config import root_fldr
 
 def objective(beta: np.array, X: np.ndarray, y: np.array, stock_count: int) -> np.ndarray:
@@ -41,16 +42,26 @@ def compute_market_return(universe: pd.DataFrame) -> pd.DataFrame:
     market_return = sum(universe['ret'] * universe['mktcap'])
     return market_return
     
-def estimate():
+def estimate(start_date: pd.Timestamp, end_date: pd.Timestamp):
     universe = pd.read_pickle(f"{root_fldr}/data/est_universe_us_raw_hist_with_daily_return.pkl")
     ind = pd.read_pickle(f'{root_fldr}/data/Industry_allocation/industry_allocation.pkl')
-    start_date = pd.to_datetime('2018-01-01')
-    end_date = pd.to_datetime('2023-12-29')
     datadates = cal_util.dateSeq(start_date, end_date)
 
-    FACTORS = ['size', 'turnover', 'value', 'volatility', 'season', 'rev1d', 'momentom', 'leverage', 'revlt', 'beta','value',]
+    FACTORS = ['size', 'turnover', 'value', 'volatility', 'season', 'rev1d', 'momentom', 'leverage', 'revlt', 'beta',]
     DESCRIPTORS_UNIV = {factor: pd.read_pickle(f'{root_fldr}/data/descriptor/estimation/{factor}.pkl') for factor in FACTORS}
-    FACTOR_COEFS = {key: pd.read_pickle(f'{root_fldr}/data/risk_index_formulation/estimation/{key}.pkl') for key in FACTORS}
+    FACTOR_COEFS = {
+        'size': {'log_mktcap_21': 0.5, 'log_asset': 0.5},
+        'turnover': {'mndto3': 0.33, 'mndto6': 0.33, 'mndto12': 0.33},
+        'value': {'btop': 0.2, 'ctop': 0.2, 'ctop5': 0.2, 'etop': 0.2, 'etop5': 0.2},
+        'volatility': {'cmra': 0.33, 'dhilo': 0.33, 'dvrat': 0.33},
+        'season': {'season': 1},
+        'rev1d': {'rev1d': 1},
+        'momentom': {'rstr12': 0.5, 'rstr24': 0.5},
+        'leverage': {'blev': 0.33, 'dtoa': 0.33, 'mlev': 0.33},
+        'revlt': {'revlt': 0.5, 'alpha': 0.5},
+        'beta': {'beta': 0.5, 'hsigma': 0.5},
+    }
+
     FACTORS_RETURN = pd.DataFrame(columns=FACTORS + ['market_factor', 'market_ret', 'datadate'])
     FACTORS_EXPOSURE = pd.DataFrame(columns=['gvkey', 'exposure', 'factor', 'datadate'])
 

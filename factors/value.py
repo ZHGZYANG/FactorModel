@@ -5,7 +5,7 @@ import pandas as pd
 import datetime
 from Factor import Factor
 from config import root_fldr
-from utils import normalize, winzorize
+from util import normalize, winzorize
 
 class Value(Factor):
   def __init__(self, startdate: pd.Timestamp, enddate: pd.Timestamp):
@@ -15,16 +15,16 @@ class Value(Factor):
     self.enddate = enddate
 
   def calc(self):
-    universe = pd.merge(universe, fdmt[['gvkey', 'datadate','apdedateq']], on=['gvkey', 'datadate'], how='left').sort_values(by=['gvkey', 'datadate'])
+    universe = pd.merge(self.universe, self.fdmt[['gvkey', 'datadate','apdedateq']], on=['gvkey', 'datadate'], how='left').sort_values(by=['gvkey', 'datadate'])
     universe[['apdedateq']] = universe.groupby('gvkey')[['apdedateq']].bfill().fillna(pd.to_datetime('today'))
 
     total_descriptor = pd.DataFrame()
-    datadates = cal_util.dateSeq(startdate, enddate)
+    datadates = cal_util.dateSeq(self.startdate, self.enddate)
     if not os.path.exists(save_fldr): os.makedirs(save_fldr)
     
     for datadate in datadates:
       univ_cur = universe.loc[universe['datadate'] == datadate].reset_index(drop=True)
-      fdmt_cur = fdmt.groupby('gvkey').last().reset_index()
+      fdmt_cur = self.fdmt.groupby('gvkey').last().reset_index()
       univ_cur = pd.merge(univ_cur, fdmt_cur, on='gvkey')
 
       btop = univ_cur[['gvkey', 'cshoc', 'prccd', 'ceqq']]
@@ -34,7 +34,7 @@ class Value(Factor):
       ya5 = datadate - pd.DateOffset(years=5)
       univ_cur = universe.loc[(universe['apdedateq'] > ya5) & (universe['datadate'] < datadate)].reset_index(drop=True)
       univ_cur['ya1_flg'] = np.where(univ_cur['datadate'] >= ya1, 1, np.nan)
-      fdmt_cur = fdmt.loc[(fdmt['apdedateq'] > ya5) & (fdmt['datadate'] < datadate)].reset_index(drop=True)
+      fdmt_cur = self.fdmt.loc[(self.fdmt['apdedateq'] > ya5) & (self.fdmt['datadate'] < datadate)].reset_index(drop=True)
       fdmt_cur['ya1_flg'] = np.where(fdmt_cur['apdedateq'] >= ya1, 1, np.nan)
       
       univ_cur = univ_cur.groupby('gvkey', group_keys=False).apply(lambda x: pd.Series(dict(

@@ -5,7 +5,7 @@ import pandas as pd
 import datetime
 from Factor import Factor
 from config import root_fldr
-from utils import normalize, winzorize
+from util import normalize, winzorize
 
 class Momentum(Factor):
   def __init__(self, startdate: pd.Timestamp, enddate: pd.Timestamp):
@@ -16,12 +16,12 @@ class Momentum(Factor):
 
   def calc(self):
     total_descriptor = pd.DataFrame()
-    datadates = cal_util.dateSeq(startdate, enddate)
+    datadates = cal_util.dateSeq(self.startdate, self.enddate)
 
     for datadate in datadates:
       ya1 = datadate - pd.DateOffset(years=1)
       ya2 = datadate - pd.DateOffset(years=2)
-      univ_cur = universe.loc[(universe['datadate'] > ya2) & (universe['datadate'] < datadate)]
+      univ_cur = self.universe.loc[(self.universe['datadate'] > ya2) & (self.universe['datadate'] < datadate)]
       univ_cur['ya1_flg'] = np.where(univ_cur['datadate'] > ya1, 1, np.nan)
       
       momentom = univ_cur.groupby('gvkey', group_keys=False).apply(lambda x: pd.Series(dict(

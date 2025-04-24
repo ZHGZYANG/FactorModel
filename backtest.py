@@ -107,9 +107,7 @@ def init(start_date: pd.Timestamp, end_date: pd.Timestamp, portfolio: list = Non
             returns.columns]
     return returns, volumes, prices
     
-def portfolio_evaluation(portfolio: list=None, weight: list=None):
-    start_time = pd.to_datetime('2021-01-02')
-    end_time = pd.to_datetime('2023-12-29')
+def portfolio_evaluation(portfolio: list=None, weight: list=None,  start_date: pd.Timestamp, end_date: pd.Timestamp):
     if not portfolio:
         portfolio = ['001690', '160329', '012141']
         weight = [0.2, 0.3, 0.5]

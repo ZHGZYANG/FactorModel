@@ -5,7 +5,7 @@ import pandas as pd
 import datetime
 from Factor import Factor
 from config import root_fldr
-from utils import normalize, winzorize
+from util import normalize, winzorize
 
 class Leverage(Factor):
   def __init__(self, startdate: pd.Timestamp, enddate: pd.Timestamp):
@@ -15,16 +15,16 @@ class Leverage(Factor):
     self.enddate = enddate
 
   def calc(self):
-    universe = pd.merge(universe, fdmt[['gvkey', 'datadate', 'apdedateq']], on=['gvkey', 'datadate'], how='left').sort_values(by=['gvkey', 'datadate'])
+    universe = pd.merge(self.universe, self.fdmt[['gvkey', 'datadate', 'apdedateq']], on=['gvkey', 'datadate'], how='left').sort_values(by=['gvkey', 'datadate'])
     universe[['apdedateq']] = universe.groupby('gvkey')[['apdedateq']].bfill().fillna(pd.to_datetime('today'))
     
     total_descriptor = pd.DataFrame()
-    datadates = cal_util.dateSeq(startdate, enddate)
+    datadates = cal_util.dateSeq(self.startdate, self.enddate)
 
     for datadate in datadates:
       ya = cal_util.dateWrap(datadate, by=-300)
       univ_cur = universe.loc[(universe['apdedateq'] > ya) & (universe['datadate'] < datadate)].reset_index(drop=True)
-      fdmt_cur = fdmt.loc[(fdmt['apdedateq'] > ya) & (fdmt['datadate'] < datadate)].reset_index(drop=True).drop_duplicates(subset=['gvkey', 'fyearq', 'fqtr'], keep='last')
+      fdmt_cur = self.fdmt.loc[(self.fdmt['apdedateq'] > ya) & (self.fdmt['datadate'] < datadate)].reset_index(drop=True).drop_duplicates(subset=['gvkey', 'fyearq', 'fqtr'], keep='last')
       
       mktcap_avg = univ_cur.groupby('gvkey').apply(lambda x: (x['cshoc'] * x['prccd']).mean(), include_groups=False).reset_index(name='mktcap_avg')
       fdmt_cur['tncl'] = fdmt_cur['ltq'] - fdmt_cur['lctq']

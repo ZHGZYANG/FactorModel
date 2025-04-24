@@ -5,7 +5,7 @@ import pandas as pd
 import datetime
 from Factor import Factor
 from config import root_fldr
-from utils import normalize, winzorize
+from util import normalize, winzorize
 
 class Rev1d(Factor):
   def __init__(self, startdate: pd.Timestamp, enddate: pd.Timestamp):
@@ -16,13 +16,13 @@ class Rev1d(Factor):
 
   def calc(self):
     total_descriptor = pd.DataFrame()
-    datadates = cal_util.dateSeq(startdate, enddate)
+    datadates = cal_util.dateSeq(self.startdate, self.enddate)
 
-    universe['retflt'] = np.clip(universe['ret'], -0.99, 1)
+    self.universe['retflt'] = np.clip(self.universe['ret'], -0.99, 1)
 
     for datadate in datadates:
       d20 = cal_util.dateWrap(datadate, by=-20)
-      univ_cur = universe.loc[(universe['datadate'] >= d20) & (universe['datadate'] < datadate)]
+      univ_cur = self.universe.loc[(self.universe['datadate'] >= d20) & (self.universe['datadate'] < datadate)]
       rev1d = univ_cur.groupby('gvkey')['retflt'].apply(lambda x: -np.exp(np.nansum(np.log1p(x))) - 1).reset_index(name='rev1d')
       rev1d['rev1d'] = winzorize(normalize(rev1d['rev1d']))
       rev1d = rev1d.fillna(0)

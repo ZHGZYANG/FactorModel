@@ -5,7 +5,7 @@ import pandas as pd
 import datetime
 from Factor import Factor
 from config import root_fldr
-from utils import normalize, winzorize
+from util import normalize, winzorize
 
 class Volatility(Factor):
   def __init__(self, startdate: pd.Timestamp, enddate: pd.Timestamp):
@@ -16,12 +16,12 @@ class Volatility(Factor):
 
   def calc(self):
     total_descriptor = pd.DataFrame()
-    datadates = cal_util.dateSeq(startdate, enddate)
+    datadates = cal_util.dateSeq(self.startdate, self.enddate)
 
     for datadate in datadates:
       # CMRA calculation (last year)
       ya = datadate - pd.DateOffset(years=1)
-      univ_cur = universe.loc[(universe['datadate'] <= datadate) & (universe['datadate'] > ya)].reset_index(drop=True)
+      univ_cur = self.universe.loc[(self.universe['datadate'] <= datadate) & (self.universe['datadate'] > ya)].reset_index(drop=True)
 
       univ_cur['cumret'] = univ_cur.groupby('gvkey')['ret'].transform(lambda x: (1 + x).cumprod())
       cmra = univ_cur.groupby('gvkey').apply(lambda x: pd.Series(dict(
@@ -32,7 +32,7 @@ class Volatility(Factor):
 
       # DHILO calculation (last 3 months)
       mth3 = datadate - pd.DateOffset(months=3)
-      prcdata = universe.loc[(universe['datadate'] <= datadate) & (universe['datadate'] > mth3)].reset_index(
+      prcdata = self.universe.loc[(self.universe['datadate'] <= datadate) & (self.universe['datadate'] > mth3)].reset_index(
           drop=True)
 
       dhilo = prcdata.groupby('gvkey').apply(lambda x: pd.Series(dict(
@@ -43,7 +43,7 @@ class Volatility(Factor):
 
       # DVRAT calculation (last 2 years)
       ya2 = datadate - pd.DateOffset(years=2)
-      retdata = universe.loc[(universe['datadate'] <= datadate) & (universe['datadate'] > ya2)].reset_index(drop=True)
+      retdata = self.universe.loc[(self.universe['datadate'] <= datadate) & (self.universe['datadate'] > ya2)].reset_index(drop=True)
 
       # DVRAT Calculation
       retdata['cumretq'] = retdata.groupby('gvkey')['ret'].transform(
